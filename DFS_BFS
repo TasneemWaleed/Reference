@@ -1,2 +1,37 @@
 - Time Complexity: O(V + E)
 - Space Complexity: O(V + E)
+
+const int MAXN = 1e5 + 5;
+vector<int> adj[MAXN];
+bool vis[MAXN];
+
+// 1. Standard DFS
+void dfs(int u) {
+    vis[u] = true;
+    for (int v : adj[u]) {
+        if (!vis[v]) {
+            dfs(v);
+        }
+    }
+}
+
+// 2. Standard BFS (Shortest Path in Unweighted Graph)
+void bfs(int start_node, vector<int>& dist) {
+    queue<int> q;
+    q.push(start_node);
+    vis[start_node] = true;
+    dist[start_node] = 0;
+
+    while (!q.empty()) {
+        int u = q.front();
+        q.pop();
+
+        for (int v : adj[u]) {
+            if (!vis[v]) {
+                vis[v] = true;
+                dist[v] = dist[u] + 1;
+                q.push(v);
+            }
+        }
+    }
+}
