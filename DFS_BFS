@@ -35,3 +35,113 @@ void bfs(int start_node, vector<int>& dist) {
         }
     }
 }
+
+// 3. Cycle Detection in Undirected Graph
+// Returns true if there is a cycle
+bool dfs_cycle(int u, int p) {
+    vis[u] = true;
+    for (int v : adj[u]) {
+        if (!vis[v]) {
+            if (dfs_cycle(v, u)) return true;
+        } else if (v != p) {
+            return true; // Visited and not parent -> Cycle found!
+        }
+    }
+    return false;
+}
+
+// 4. Bipartite Graph Check (2-Coloring via BFS/DFS)
+// color array initialized with -1. Returns false if graph is NOT Bipartite
+bool is_bipartite(int start, vector<int>& color) {
+    color[start] = 0;
+    queue<int> q;
+    q.push(start);
+
+    while(!q.empty()) {
+        int u = q.front();
+        q.pop();
+        for(int v : adj[u]) {
+            if(color[v] == -1) {
+                color[v] = 1 - color[u];
+                q.push(v);
+            } else if(color[v] == color[u]) {
+                return false; // Adjacent nodes with same color
+            }
+        }
+    }
+    return true;
+}
+
+// 5. Topological Sort (DAG - Directed Acyclic Graph)
+C++
+vector<int> topo_order;
+
+void dfs_topo(int u) {
+    vis[u] = true;
+    for (int v : adj[u]) {
+        if (!vis[v]) dfs_topo(v);
+    }
+    topo_order.push_back(u); // Add after visiting all children
+}
+
+// 6. Cycle Detection in Directed Graph
+bool dfs_cycle_directed(int u, vector<int>& state) {
+    state[u] = 1; // Mark as visiting (in current recursion stack)
+
+    for (int v : adj[u]) {
+        if (state[v] == 1) {
+            return true; // Found a back-edge -> Cycle exists!
+        }
+        if (state[v] == 0) {
+            if (dfs_cycle_directed(v, state)) return true;
+        }
+    }
+
+    state[u] = 2; // Finished processing
+    return false;
+}
+
+// 8. Topological Sort using BFS (Kahn's Algorithm) + Cycle Detection
+bool topo_sort_bfs(int n, vector<int>& in_degree, vector<int>& topo_order) {
+    queue<int> q;
+
+    // Step 1: Push all nodes with in-degree = 0
+    for (int i = 1; i <= n; i++) {
+        if (in_degree[i] == 0) {
+            q.push(i);
+        }
+    }
+
+    // Step 2: Process nodes
+    while (!q.empty()) {
+        int u = q.front();
+        q.pop();
+        topo_order.push_back(u);
+
+        for (int v : adj[u]) {
+            in_degree[v]--; // Remove edge u -> v
+            if (in_degree[v] == 0) {
+                q.push(v);
+            }
+        }
+    }
+
+    // Step 3: Check for Cycle
+    // If topo_order doesn't contain all vertices, there's a cycle!
+    return (int)topo_order.size() == n;
+}
+
+// 9. Bipartite Check using DFS
+bool is_bipartite_dfs(int u, int c, vector<int>& color) {
+    color[u] = c;
+
+    for (int v : adj[u]) {
+        if (color[v] == -1) {
+            // Color with the opposite color (1 - c)
+            if (!is_bipartite_dfs(v, 1 - c, color)) return false;
+        } else if (color[v] == color[u]) {
+            return false; // Conflict: Adjacent nodes have the same color
+        }
+    }
+    return true;
+}
